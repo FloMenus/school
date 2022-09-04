@@ -1,0 +1,329 @@
+- MISE EN PLACE DB
+CREATE DATABASE
+
+mysql> CREATE DATABASE school;
+mysql> use school
+
+CREATE TABLE students
+
+mysql> CREATE TABLE students
+ (id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+ name VARCHAR(30), 
+ city VARCHAR(30));
+
+mysql> INSERT INTO students (name, city) VALUES ("Véronique", "Paris");
+mysql> INSERT INTO students (name, city) VALUES ("Steeven","Lyon");
+mysql> INSERT INTO students (name, city) VALUES ("Marc","Marseille");
+mysql> INSERT INTO students (name, city) VALUES ("Nour","Lyon");
+mysql> INSERT INTO students (name, city) VALUES ("Romain,"Paris");
+mysql> INSERT INTO students (name, city) VALUES ("Sophie","Paris");
+
+CREATE TABLE languages
+
+mysql> CREATE TABLE languages
+ (id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+ name VARCHAR(30));
+
+mysql> INSERT INTO languages (name) VALUES ("French");
+mysql> INSERT INTO languages (name) VALUES ("English");
+mysql> INSERT INTO languages (name) VALUES ("German");
+mysql> INSERT INTO languages (name) VALUES ("Spanish");
+mysql> INSERT INTO languages (name) VALUES ("Mandarin");
+
+CREATE TABLE favorites
+
+mysql> CREATE TABLE favorites
+ (id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+ class VARCHAR(30), sport VARCHAR(30),
+ student_id INT,
+ FOREIGN KEY (student_id) REFERENCES students(id));
+
+mysql> INSERT INTO favorites (class, sport, student_id) VALUES ("Maths","Cricket",2);
+mysql> INSERT INTO favorites (class, sport, student_id) VALUES ("Music","Hip-Hop",6);
+mysql> INSERT INTO favorites (class, sport, student_id) VALUES ("Arts","Boxing",1);
+mysql> INSERT INTO favorites (class, sport, student_id) VALUES ("Literature","Tennis",3);
+mysql> INSERT INTO favorites (class, sport, student_id) VALUES ("Computer science","Tennis",5);
+mysql> INSERT INTO favorites (class, sport, student_id) VALUES ("Arts","Baseball",4);
+
+CREATE TABLE students_languages
+
+mysql> CREATE TABLE students_languages
+ (id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, 
+ student_id INT, FOREIGN KEY (student_id) REFERENCES students(id),
+ language_id INT, FOREIGN KEY (language_id) REFERENCES languages(id));
+
+mysql> INSERT INTO students_languages (student_id, language_id) VALUES (1,1);
+mysql> INSERT INTO students_languages (student_id, language_id) VALUES (1,2);
+mysql> INSERT INTO students_languages (student_id, language_id) VALUES (2,1);
+mysql> INSERT INTO students_languages (student_id, language_id) VALUES (2,3);
+mysql> INSERT INTO students_languages (student_id, language_id) VALUES (3,1);
+mysql> INSERT INTO students_languages (student_id, language_id) VALUES (4,1);
+mysql> INSERT INTO students_languages (student_id, language_id) VALUES (4,2);
+mysql> INSERT INTO students_languages (student_id, language_id) VALUES (4,4);
+mysql> INSERT INTO students_languages (student_id, language_id) VALUES (4,5);
+mysql> INSERT INTO students_languages (student_id, language_id) VALUES (5,1);
+mysql> INSERT INTO students_languages (student_id, language_id) VALUES (5,5);
+mysql> INSERT INTO students_languages (student_id, language_id) VALUES (6,1);
+mysql> INSERT INTO students_languages (student_id, language_id) VALUES (6,2);
+mysql> INSERT INTO students_languages (student_id, language_id) VALUES (6,3);
+
+//////RAPPORTS//////////////////////////////////////////////////////////////////////////////
+
+//////////////// RAPPORT LVL 1 ////////////////
+
+1. SELECT * FROM students WHERE id = 3;
+
++----+------+-----------+
+| id | name | city      |
++----+------+-----------+
+|  3 | Marc | Marseille |
++----+------+-----------+
+
+2. SELECT * FROM students WHERE id = 6;
++----+--------+-------+
+| id | name   | city  |
++----+--------+-------+
+|  6 | Sophie | Paris |
++----+--------+-------+
+
+3. SELECT name AS Name, city AS City FROM students WHERE id = 1;
++-----------+-------+
+| Name      | City  |
++-----------+-------+
+| Véronique | Paris |
++-----------+-------+
+
+4. SELECT name AS Name FROM students WHERE id = 2;
++---------+
+| Name    |
++---------+
+| Steeven |
++---------+
+
+5. SELECT * FROM students WHERE city= "paris";
++----+-----------+-------+
+| id | name      | city  |
++----+-----------+-------+
+|  1 | Véronique | Paris |
+|  5 | Romain    | Paris |
+|  6 | Sophie    | Paris |
++----+-----------+-------+
+
+6. SELECT name as Name FROM students WHERE city="lyon";
++---------+
+| Name    |
++---------+
+| Steeven |
+| Nour    |
++---------+
+
+//////////////// RAPPORT LVL 2 ////////////////
+
+1. SELECT students.id, students.name, students.city, favorites.class, favorites.sport
+    -> FROM students
+    -> INNER JOIN favorites ON students.id = favorites.student_id
+    -> WHERE students.id=5;
++----+--------+-------+------------------+--------+
+| id | name   | city  | class            | sport  |
++----+--------+-------+------------------+--------+
+|  5 | Romain | Paris | Computer science | Tennis |
++----+--------+-------+------------------+--------+
+
+2. SELECT students.name, favorites.sport
+    -> FROM students
+    -> INNER JOIN favorites ON students.id = favorites.student_id
+    -> WHERE students.id=4;
++------+----------+
+| name | sport    |
++------+----------+
+| Nour | Baseball |
++------+----------+
+
+3. SELECT students.name, favorites.class
+    -> FROM students
+    -> INNER JOIN favorites ON students.id = favorites.student_id
+    -> WHERE students.id=1;
++-----------+-------+
+| name      | class |
++-----------+-------+
+| Véronique | Arts  |
++-----------+-------+
+
+4. SELECT * FROM students
+    -> INNER JOIN favorites ON students.id = favorites.student_id
+    -> WHERE favorites.class="Music";
++----+--------+-------+----+-------+---------+------------+
+| id | name   | city  | id | class | sport   | student_id |
++----+--------+-------+----+-------+---------+------------+
+|  6 | Sophie | Paris |  2 | Music | Hip-Hop |          6 |
++----+--------+-------+----+-------+---------+------------+
+
+5. SELECT * FROM students
+    -> INNER JOIN favorites ON students.id = favorites.student_id
+    -> WHERE favorites.sport="Tennis";
++----+--------+-----------+----+------------------+--------+------------+
+| id | name   | city      | id | class            | sport  | student_id |
++----+--------+-----------+----+------------------+--------+------------+
+|  3 | Marc   | Marseille |  4 | Literature       | Tennis |          3 |
+|  5 | Romain | Paris     |  5 | Computer science | Tennis |          5 |
++----+--------+-----------+----+------------------+--------+------------+
+
+6. SELECT * FROM students
+    -> INNER JOIN favorites ON students.id = favorites.student_id
+    -> WHERE favorites.class="Music" OR favorites.class="Arts" OR favorites.class="Literature";
++----+-----------+-----------+----+------------+----------+------------+
+| id | name      | city      | id | class      | sport    | student_id |
++----+-----------+-----------+----+------------+----------+------------+
+|  6 | Sophie    | Paris     |  2 | Music      | Hip-Hop  |          6 |
+|  1 | Véronique | Paris     |  3 | Arts       | Boxing   |          1 |
+|  3 | Marc      | Marseille |  4 | Literature | Tennis   |          3 |
+|  4 | Nour      | Lyon      |  6 | Arts       | Baseball |          4 |
++----+-----------+-----------+----+------------+----------+------------+
+
+7. SELECT COUNT(*) FROM students WHERE students.city="Paris";
++----------+
+| COUNT(*) |
++----------+
+|        3 |
++----------+
+
+//////////////// RAPPORT LVL 3 ////////////////
+
+1. SELECT students.id, students.name, students.city, languages.name
+    -> FROM STUDENTS
+    -> INNER JOIN students_languages ON students.id = students_languages.student_id
+    -> INNER JOIN languages ON students_languages.language_id = languages.id
+    -> WHERE students.id=1;
++----+-----------+-------+---------+
+| id | name      | city  | name    |
++----+-----------+-------+---------+
+|  1 | Véronique | Paris | French  |
+|  1 | Véronique | Paris | English |
++----+-----------+-------+---------+
+
+2. SELECT students.id, students.name, students.city, languages.name
+    -> FROM STUDENTS
+    -> INNER JOIN students_languages ON students.id = students_languages.student_id
+    -> INNER JOIN languages ON students_languages.language_id = languages.id
+    -> WHERE students.id=4;
++----+------+------+----------+
+| id | name | city | name     |
++----+------+------+----------+
+|  4 | Nour | Lyon | French   |
+|  4 | Nour | Lyon | English  |
+|  4 | Nour | Lyon | Spanish  |
+|  4 | Nour | Lyon | Mandarin |
++----+------+------+----------+
+
+3. SELECT students.name, languages.name
+    -> FROM students
+    -> INNER JOIN students_languages ON students.id = students_languages.student_id
+    -> INNER JOIN languages ON students_languages.language_id = languages.id
+    -> WHERE students.id=5;
++--------+----------+
+| name   | name     |
++--------+----------+
+| Romain | French   |
+| Romain | Mandarin |
++--------+----------+
+
+//////////////// RAPPORT LVL 4 ////////////////
+
+1. UPDATE students
+    -> SET name = "Jacques"
+    -> WHERE id = 4;
+
+   SELECT * FROM STUDENTS;
++----+-----------+-----------+
+| id | name      | city      |
++----+-----------+-----------+
+|  1 | Véronique | Paris     |
+|  2 | Steeven   | Lyon      |
+|  3 | Marc      | Marseille |
+|  4 | Jacques   | Lyon      |
+|  5 | Romain    | Paris     |
+|  6 | Sophie    | Paris     |
++----+-----------+-----------+
+
+2. UPDATE students
+    -> SET city = "Roubaix"
+    -> WHERE id = 1;
+
+   SELECT * FROM STUDENTS;
++----+-----------+-----------+
+| id | name      | city      |
++----+-----------+-----------+
+|  1 | Véronique | Roubaix   |
+|  2 | Steeven   | Lyon      |
+|  3 | Marc      | Marseille |
+|  4 | Jacques   | Lyon      |
+|  5 | Romain    | Paris     |
+|  6 | Sophie    | Paris     |
++----+-----------+-----------+
+
+3. DELETE FROM students
+    -> WHERE id=2;
+ERROR 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`school`.`favorites`, CONSTRAINT `favorites_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`))
+
+(After reading a post on stackoverflow, i apparently need to disable the foreign key check)
+
+   SET FOREIGN_KEY_CHECKS=0;
+
+   DELETE FROM students
+    -> WHERE id=2;
+
+   SELECT * FROM students;
++----+-----------+-----------+
+| id | name      | city      |
++----+-----------+-----------+
+|  1 | Véronique | Roubaix   |
+|  3 | Marc      | Marseille |
+|  4 | Jacques   | Lyon      |
+|  5 | Romain    | Paris     |
+|  6 | Sophie    | Paris     |
++----+-----------+-----------+
+
+4. DELETE FROM students
+    -> WHERE city="Paris";
+
+   SELECT * FROM students;
++----+-----------+-----------+
+| id | name      | city      |
++----+-----------+-----------+
+|  1 | Véronique | Roubaix   |
+|  3 | Marc      | Marseille |
+|  4 | Jacques   | Lyon      |
++----+-----------+-----------+
+
+//////////////// RAPPORT LVL 5 ////////////////
+
+1. SELECT * FROM students
+    -> WHERE name LIKE '%e%';
++----+-----------+---------+
+| id | name      | city    |
++----+-----------+---------+
+|  1 | Véronique | Roubaix |
+|  4 | Jacques   | Lyon    |
++----+-----------+---------+
+
+2. SELECT favorites.sport
+    -> FROM favorites
+    -> INNER JOIN students ON favorites.student_id = students.id
+    -> WHERE students.name LIKE '%e%';
++----------+
+| sport    |
++----------+
+| Boxing   |
+| Baseball |
++----------+
+
+3. SELECT favorites.class
+    -> FROM favorites
+    -> INNER JOIN students ON favorites.student_id = students.id
+    -> WHERE students.city LIKE '%i%';
++------------+
+| class      |
++------------+
+| Arts       |
+| Literature |
++------------+
